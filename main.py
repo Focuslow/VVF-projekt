@@ -1,129 +1,199 @@
-from PyQt5 import QtGui, QtWidgets, QtCore
 from mnc import mnc
-import sys
+from rmnc import rmnc
+import math
+import numpy as np
+from scipy import signal
+import dash
+import random as rand
+import dash_core_components as dcc
+from dash.dependencies import Input, Output, State, ALL, MATCH
+import dash_html_components as html
+import plotly.graph_objects as go
+def layout(app):
+    main_color = '#016e3f'
+    text_color = '#000000'
+    return html.Div(children = [
+        dcc.RadioItems(id = 'visibility',
+            options = [{'label': i, 'value': i} for i in ['Visible', 'Invisible']],
+            value = 'Visible', labelStyle={'display': 'inline-block'},
+            style={'textAlign': 'center','margin-top': '15px', 'color':main_color}),
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
+        html.Div(id = 'main', className = 'app-div', children = [
+            
+            html.Hr(style = {'width': '500px'}),
 
-        self.horizontalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 850, 563))
-        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout.setContentsMargins(4, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
+            html.Div(id = 'param', className = 'app-div', children = [
+                dcc.RadioItems(id = 'systFunc',
+                options = [{'label': i, 'value': i} for i in ['Sinus', 'Rectangle', 'Triangel']],
+                value = 'Sinus', labelStyle={'display': 'inline-block'},
+                style={'textAlign': 'center','margin-top': '15px', 'color':text_color}),
 
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+                dcc.Input(id = 'amplitude', placeholder='Enter aplitude...',
+                        type='number',  debounce=True),
 
-        self.label = QtWidgets.QLabel(self.horizontalLayoutWidget)
-        self.label.setEnabled(True)
-        self.label.setMinimumSize(QtCore.QSize(300, 100))
-        self.label.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
-        self.verticalLayout_3.addWidget(self.label)
+                dcc.Input(id = 'periode', placeholder='Enter periode...',
+                        type='number',  debounce=True),
 
-        self.lineEdit = QtWidgets.QLineEdit(self.horizontalLayoutWidget)
-        self.lineEdit.setText("")
-        self.lineEdit.setObjectName("lineEdit")
-        self.verticalLayout_3.addWidget(self.lineEdit)
+            ],style = {'display':'inline-block'}),
+            html.Div(id = 'function', className = 'app-div', children = [
+                html.Hr(style = {'width': '500px'}),
 
-        self.line_2 = QtWidgets.QFrame(self.horizontalLayoutWidget)
-        self.line_2.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.line_2.setLineWidth(10)
-        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_2.setObjectName("line_2")
-        self.verticalLayout_3.addWidget(self.line_2)
+                html.P('Type as 1., 4., 1.5, 0.', style = {'color':text_color}),
 
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.horizontalLayoutWidget)
-        self.lineEdit_2.setObjectName("lineEdit_2")
+                dcc.Input(id = 'numerator', placeholder='Enter numerator...',
+                        type='text',  debounce=True),
 
-        self.verticalLayout_3.addWidget(self.lineEdit_2)
-        self.verticalLayout.addLayout(self.verticalLayout_3)
+                dcc.Input(id = 'denominator', placeholder='Enter denominator...',
+                        type='text',  debounce=True),
 
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+            ],style = {'display':'inline-block'}),
 
-        self.label_2 = QtWidgets.QLabel(self.horizontalLayoutWidget)
-        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_2.setObjectName("label_2")
+            dcc.Input(id = 'time', placeholder='Enter time...',
+                type='number',  debounce=True),
 
-        self.verticalLayout_2.addWidget(self.label_2)
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setAlignment(QtCore.Qt.AlignCenter)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+            dcc.Input(id = 'timeStep', placeholder='Enter time step...',
+                type='number',  debounce=True),
 
-        self.radioButton_3 = QtWidgets.QRadioButton(self.horizontalLayoutWidget)
-        self.radioButton_3.setObjectName("radioButton_3")
-        self.horizontalLayout_2.addWidget(self.radioButton_3)
+            html.Hr(style = {'width': '500px'}),
 
-        self.radioButton_2 = QtWidgets.QRadioButton(self.horizontalLayoutWidget)
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.horizontalLayout_2.addWidget(self.radioButton_2)
+            dcc.Dropdown(id='metod', style = {'width': '500px', 'padding-left':'25px'},
+                options=[{'label': 'Least squares metod', 'value': 'mnc'}, 
+                {'label': 'Recursive least squares metod', 'value': 'rmnc'}],value='mnc'),
 
-        self.radioButton = QtWidgets.QRadioButton(self.horizontalLayoutWidget)
-        self.radioButton.setObjectName("radioButton")
-        self.horizontalLayout_2.addWidget(self.radioButton)
+            html.Div(id = 'start_btn',className='butt', children=[
+                html.Hr(style = {'width': '500px'}),
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
-        self.verticalLayout.addLayout(self.verticalLayout_2)
-        self.horizontalLayout.addLayout(self.verticalLayout)
+                html.P('Start your simulation', style = {'color':text_color}),
 
-        self.btn = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.btn.setText("Run")
-        self.verticalLayout.addWidget(self.btn)
+                html.A(
+                    html.Button(
+                        id='start',
+                        className='satrt_btn',
+                        children="Start",
+                        n_clicks=0,
+                        style = {'color':'#ffffff', 'background-color': text_color}
+                    ),
+                ),
+                html.Hr(style = {'width': '500px', 'color':main_color}),
+            ]),
+        ]),
+        html.Div(children = [
+            dcc.Graph(id="graph", style={'height': '890px'}),
+        ],style = {'float': 'right', 'display':'inline-block'}),
+    ], style={'height': '890px'})
 
-        self.namiestoTohtoTrebaGraf = QtWidgets.QLabel(self.horizontalLayoutWidget)
-        self.namiestoTohtoTrebaGraf.setAlignment(QtCore.Qt.AlignCenter)
-        self.namiestoTohtoTrebaGraf.setWordWrap(False)
-        self.namiestoTohtoTrebaGraf.setObjectName("namiestoTohtoTrebaGraf")
-        self.horizontalLayout.addWidget(self.namiestoTohtoTrebaGraf)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+def callbacks(app):
 
-        self.retranslateUi(MainWindow)
-        self.conn_btns()
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+    @app.callback(
+        [Output('main', 'style'),
+        Output('graph', 'style')],
+        [Input('visibility', 'value')]
+    )
+    def show_param(x):
+        main_color = "#016e3f"
+        if x == 'Visible':
+            return [{'display':'inline-block','width':'550px', 'borderRadius': '20px',
+                'textAlign': 'center', "background-color":main_color},
+                {'width':'1300px'}]
+        else:
+            return [{'display':'none'}, {'width':'1900px'}]
+    @app.callback(
+        Output('graph','figure'),
+        [Input('start', 'n_clicks')],
+        [State('metod', 'value'),
+        State('systFunc', 'value'),
+        State('amplitude', 'value'),
+        State('periode', 'value'),
+        State('numerator', 'value'),
+        State('denominator', 'value'),
+        State('time', 'value'),
+        State('timeStep', 'value')]
+    )
+    def show_graph(btnStart, metod, systFunc, ampl, period, numerator, denominator, time, timeStep):
+        data = []
+        aproxData = []
+        numbPoly = 0
+        num, den = ownFunction(numerator, denominator)
+        num = np.array(num)
+        den = np.array(den)
+        if systFunc == 'Sinus':
+            data = sinusFun(ampl, period, time, timeStep)
+        elif systFunc == 'Rectangle': 
+            data = rectangleFun(ampl, period, time, timeStep) 
+        elif systFunc == 'zeroOne':
+            """ data = np.ones(int(time/timeStep))
+            data[0] = 0
+            data[1] = 0
+            data[2] = 0
+         """
+        else:
+            data = triangelFun(ampl, period, time, timeStep)
+        tout, yout, x = signal.lsim(signal.lti(num, den), data[1], data[0]) 
+        if metod == 'rmnc':
+            aproxData = rmnc(yout, tout)
+        else:
+            aproxData = mnc(yout, tout, data[1])
 
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "Zadaj systém"))
-        self.label_2.setText(_translate("MainWindow", "Vyber vstupný signál"))
-        self.radioButton_3.setText(_translate("MainWindow", "Niečo"))
-        self.radioButton_2.setText(_translate("MainWindow", "Step"))
-        self.radioButton.setText(_translate("MainWindow", "Sin"))
-        self.namiestoTohtoTrebaGraf.setText(_translate("MainWindow", "fdsfdsfsdssssssssssssssssssssssssssssssssssssssssssssssssssss"))
+        fig = go.Figure(data = [])
+        fig.add_trace(go.Scatter(x=tout, y=data[1], mode = 'lines', name='input'))
+        fig.add_trace(go.Scatter(x=tout, y=yout, mode = 'lines', name='system output'))
+        fig.add_trace(go.Scatter(x=tout, y=aproxData, mode = 'lines', name='aproximation'))
 
-    def keyPressEvent(self, event):
-        if type(event) == QtGui.QKeyEvent:
-            if event.key() == QtCore.Qt.Key_Escape:
-                sys.exit(0)
+        return fig
 
-    def conn_btns(self):
-        self.btn.clicked.connect(self.start)
+def ownFunction(numerator, denominator):
+    l = numerator.split(", ")
+    r = denominator.split(", ")
+    p, q = [], []
+    for i in l:
+        p.append(float(i))
+    for i in r:
+        q.append(float(i))
+    return p, q
 
-    def start(self):
-        num = self.lineEdit.text()
-        den = self.lineEdit_2.text()
+def sinusFun(ampl, period, time, timeStep):
+    data = []
+    y = []
+    t = [] 
+    i = 0.0
+    while i <= time:
+        t.append(i)
+        y.append(ampl*math.sin(2*math.pi*i/period)+0.3*rand.random()+math.sin(2*math.pi/10*i))
+        i += timeStep
+    data.append(t)
+    data.append(y)
+    return data
 
-        sys=[list(num.split(",")),list(den.split(","))]
+def rectangleFun(ampl, period, time, timeStep):
+    data = []
+    y = []
+    t = [] 
+    i = 0.0
+    while i <= time:
+        t.append(i)
+        y.append(ampl*np.sign(math.sin(2*math.pi*i/period)))
+        i += timeStep
+    data.append(t)
+    data.append(y)
+    return data
 
-        mnc(sys)
+def triangelFun(ampl, period, time, timeStep):
+    data = []
+    y = []
+    t = [] 
+    i = 0.0
+    while i <= time:
+        t.append(i)
+        y.append(2*ampl*math.asin(math.sin(2*math.pi*i/period))/math.pi)
+        i += timeStep
+    data.append(t)
+    data.append(y)
+    return data
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+app = dash.Dash(__name__, 
+    external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],
+    suppress_callback_exceptions=True)
+app.layout = layout(app)
+callbacks(app)
+if __name__ == '__main__':
+    app.run_server(debug=True)
