@@ -19,7 +19,7 @@ def layout(app):
             style={'textAlign': 'center','margin-top': '15px', 'color':main_color}),
 
         html.Div(id = 'main', className = 'app-div', children = [
-            
+
             html.Hr(style = {'width': '500px'}),
 
             html.Div(id = 'param', className = 'app-div', children = [
@@ -57,7 +57,7 @@ def layout(app):
             html.Hr(style = {'width': '500px'}),
 
             dcc.Dropdown(id='metod', style = {'width': '500px', 'padding-left':'25px'},
-                options=[{'label': 'Least squares metod', 'value': 'mnc'}, 
+                options=[{'label': 'Least squares metod', 'value': 'mnc'},
                 {'label': 'Recursive least squares metod', 'value': 'rmnc'}],value='mnc'),
 
             html.Div(id = 'start_btn',className='butt', children=[
@@ -118,11 +118,11 @@ def callbacks(app):
         den = np.array(den)
         if systFunc == 'Sinus':
             data = sinusFun(ampl, period, time, timeStep)
-        elif systFunc == 'Rectangle': 
-            data = rectangleFun(ampl, period, time, timeStep) 
+        elif systFunc == 'Rectangle':
+            data = rectangleFun(ampl, period, time, timeStep)
         else:
             data = triangelFun(ampl, period, time, timeStep)
-        tout, yout, x = signal.lsim(signal.lti(num, den), data[1], data[0]) 
+        tout, yout, x = signal.lsim(signal.lti(num, den), data[1], data[0])
         if metod == 'rmnc':
             aproxData = rmnc(yout, tout, data[1])
         else:
@@ -147,7 +147,7 @@ def ownFunction(numerator, denominator):
 def sinusFun(ampl, period, time, timeStep):
     data = []
     y = []
-    t = [] 
+    t = []
     i = 0.0
     while i <= time:
         t.append(i)
@@ -160,7 +160,7 @@ def sinusFun(ampl, period, time, timeStep):
 def rectangleFun(ampl, period, time, timeStep):
     data = []
     y = []
-    t = [] 
+    t = []
     i = 0.0
     while i <= time:
         t.append(i)
@@ -173,7 +173,7 @@ def rectangleFun(ampl, period, time, timeStep):
 def triangelFun(ampl, period, time, timeStep):
     data = []
     y = []
-    t = [] 
+    t = []
     i = 0.0
     while i <= time:
         t.append(i)
@@ -183,7 +183,7 @@ def triangelFun(ampl, period, time, timeStep):
     data.append(y)
     return data
 
-app = dash.Dash(__name__, 
+app = dash.Dash(__name__,
     external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],
     suppress_callback_exceptions=True)
 app.layout = layout(app)
