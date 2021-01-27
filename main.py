@@ -120,17 +120,11 @@ def callbacks(app):
             data = sinusFun(ampl, period, time, timeStep)
         elif systFunc == 'Rectangle': 
             data = rectangleFun(ampl, period, time, timeStep) 
-        elif systFunc == 'zeroOne':
-            """ data = np.ones(int(time/timeStep))
-            data[0] = 0
-            data[1] = 0
-            data[2] = 0
-         """
         else:
             data = triangelFun(ampl, period, time, timeStep)
         tout, yout, x = signal.lsim(signal.lti(num, den), data[1], data[0]) 
         if metod == 'rmnc':
-            aproxData = rmnc(yout, tout)
+            aproxData = rmnc(yout, tout, data[1])
         else:
             aproxData = mnc(yout, tout, data[1])
 
@@ -138,7 +132,6 @@ def callbacks(app):
         fig.add_trace(go.Scatter(x=tout, y=data[1], mode = 'lines', name='input'))
         fig.add_trace(go.Scatter(x=tout, y=yout, mode = 'lines', name='system output'))
         fig.add_trace(go.Scatter(x=tout, y=aproxData, mode = 'lines', name='aproximation'))
-
         return fig
 
 def ownFunction(numerator, denominator):

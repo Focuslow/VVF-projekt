@@ -1,23 +1,6 @@
 import numpy as np
-
-""" def mnc(numbPoly, yout, t, data):
-    result = np.ones(10)*1e9
-    for i in range(10):
-        for j in range(i+1):
-            fi = []
-            nab = max(i, j)
-            for k in range(i, 1, -1):
-                fi = [fi y]
-
-            result[i][j] = something
-    tp = np.polyfit(t, yout, numbPoly)
-    aproxData = np.polyval(tp, t)
-    return aproxData """
-
-    
 from harold import *
 import time
-
 
 def mnc_calc(na, nb, t, yout, u, pri = None):
 
